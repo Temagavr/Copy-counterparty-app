@@ -11,37 +11,37 @@ namespace copy_counterparty_app.Domain.Shared
         /// <summary>
         /// Название банка
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Банковский идентификационный код (БИК)
         /// </summary>
-        public string Bic { get; private set; }
+        public string Bic { get; set; }
 
         /// <summary>
         /// Корреспондентский счет
         /// </summary>
-        public string CorrespondentAccount { get; private set; }
+        public string CorrespondentAccount { get; set; }
 
         /// <summary>
         /// Признак, определяющий, относятся ли банковские реквизиты для расчета с бюджетной организацией
         /// </summary>
-        public bool IsBudgetaryInstitution { get; private set; }
+        public bool IsBudgetaryInstitution { get; set; }
 
         /// <summary>
         /// Расчетный счет. Заполняется и используется для небюджетных организаций
         /// </summary>
-        public string SettlementAccount { get; private set; }
+        public string SettlementAccount { get; set; }
 
         /// <summary>
         /// Код бюджетной классификации (КБК). Заполняется и используется для бюджетных организаций
         /// </summary>
-        public string Kbk { get; private set; }
+        public string Kbk { get; set; }
 
         /// <summary>
         /// Лицевой счет, Наименование УФК. Заполняется и используется для бюджетных организаций
         /// </summary>
-        public string PersonalAccount { get; private set; }
+        public string PersonalAccount { get; set; }
 
         public BankDetails(
             string name,

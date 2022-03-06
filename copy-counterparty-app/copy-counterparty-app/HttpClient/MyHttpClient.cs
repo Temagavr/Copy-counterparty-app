@@ -36,6 +36,7 @@ namespace copy_counterparty_app
             Console.WriteLine($"{counterparty.Ogrn}");
             Console.WriteLine($"{counterparty.MainEmail}");
             Console.WriteLine($"{counterparty.LegalAddress}");
+            Console.WriteLine($"{counterparty.AccommodationPresets}");
         }
 
         private Counterparty ParseCounterparty(HttpResponseMessage responseMessage)

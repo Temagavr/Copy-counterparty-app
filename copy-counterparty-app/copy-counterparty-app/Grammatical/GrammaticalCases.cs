@@ -7,12 +7,12 @@ namespace copy_counterparty_app.Grammatical
         /// <summary>
         /// Выражение в именительном падеже
         /// </summary>
-        public string Nominative { get; private set; }
+        public string Nominative { get; set; }
 
         /// <summary>
         /// Выражение в родительном падеже
         /// </summary>
-        public string Genitive { get; private set; }
+        public string Genitive { get; set; }
 
         public GrammaticalCases( string nominative, string genitive )
         {

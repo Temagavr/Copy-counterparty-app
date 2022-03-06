@@ -4,9 +4,9 @@ namespace copy_counterparty_app.Domain
 {
     public class BankDetailsPreset
     {
-        public int CounterpartyId { get; private set; }
+        public int CounterpartyId { get; set; }
 
-        public BankDetails Value { get; private set; }
+        public BankDetails Value { get; set; }
 
         public BankDetailsPreset( BankDetails bankDetails )
         {

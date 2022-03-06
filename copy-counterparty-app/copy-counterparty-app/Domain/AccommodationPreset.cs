@@ -4,9 +4,9 @@ namespace copy_counterparty_app.Domain
 {
     public class AccommodationPreset
     {
-        public int CounterpartyId { get; private set; }
+        public int CounterpartyId { get; set; }
 
-        public Accommodation Value { get; private set; }
+        public Accommodation Value { get; set; }
 
         public AccommodationPreset( Accommodation accommodation )
         {

@@ -11,7 +11,7 @@ namespace copy_counterparty_app.Domain.Shared
         /// <summary>
         /// Название средства размещения
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Тип средства размещения
@@ -24,23 +24,23 @@ namespace copy_counterparty_app.Domain.Shared
             }
         }
 
-        protected string TypeNameNominative { get; private set; }
-        protected string TypeNameGenitive { get; private set; }
+        protected string TypeNameNominative { get; set; }
+        protected string TypeNameGenitive { get; set; }
 
         /// <summary>
         /// Адрес средства размещения
         /// </summary>
-        public string Address { get; private set; }
+        public string Address { get; set; }
 
         /// <summary>
         /// Url сайта
         /// </summary>
-        public string SiteUrl { get; private set; }
+        public string SiteUrl { get; set; }
 
         /// <summary>
         /// Идентификатор в системе TL
         /// </summary>
-        public int? TlId { get; private set; }
+        public int? TlId { get; set; }
 
         public Accommodation(
             string name,

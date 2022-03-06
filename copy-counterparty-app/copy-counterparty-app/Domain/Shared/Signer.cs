@@ -32,8 +32,8 @@ namespace copy_counterparty_app.Domain.Shared
             }
         }
 
-        protected string FullNameNominative { get; private set; }
-        protected string FullNameGenitive { get; private set; }
+        protected string FullNameNominative { get; set; }
+        protected string FullNameGenitive { get; set; }
 
         /// <summary>
         /// Должность подписанта
@@ -46,8 +46,8 @@ namespace copy_counterparty_app.Domain.Shared
             }
         }
 
-        protected string PositionNominative { get; private set; }
-        protected string PositionGenitive { get; private set; }
+        protected string PositionNominative { get; set; }
+        protected string PositionGenitive { get; set; }
 
         /// <summary>
         /// Основание действия
@@ -60,8 +60,8 @@ namespace copy_counterparty_app.Domain.Shared
             }
         }
 
-        protected string BasicActionNominative { get; private set; }
-        protected string BasicActionGenitive { get; private set; }
+        protected string BasicActionNominative { get; set; }
+        protected string BasicActionGenitive { get; set; }
 
         // Workaround for EF
         protected Signer()
