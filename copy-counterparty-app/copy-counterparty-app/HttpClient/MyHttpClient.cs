@@ -87,7 +87,7 @@ namespace copy_counterparty_app
 
         public async Task AddCounterparty(Counterparty counterparty)
         {
-            counterparty.Inn = "433332222222";
+            counterparty.Inn = "433332222219";
 
             if (!await IsExistCounterparty(counterparty))
             {
@@ -154,6 +154,15 @@ namespace copy_counterparty_app
                         await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
                     }
                 }
+
+                //Добавление подписантов к контрагенту в новом генераторе 
+                if (counterparty.SignerPresets.Count > 0)
+                {
+                    foreach (SignerPreset signer in counterparty.SignerPresets)
+                    {
+                        await AddSignerToCounterparty(newCounterparty.Id, signer);
+                    }
+                }
             }
             else
             {
@@ -172,7 +181,7 @@ namespace copy_counterparty_app
 
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Средство размещения успешно добавлено к контрагенту(id = {counterpartyId})!");
+                Console.WriteLine($"Средство размещения {accommodation.Value.Name} успешно добавлено к контрагенту(id = {counterpartyId})!");
             }
             else
             {
@@ -191,11 +200,29 @@ namespace copy_counterparty_app
 
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Банковские реквизиты успешно добавлено к контрагенту(id = {counterpartyId})!");
+                Console.WriteLine($"Банковские реквизиты {bankDetails.Value.Name} успешно добавлены к контрагенту(id = {counterpartyId})!");
             }
             else
             {
                 Console.WriteLine("Ошибка при добавлении банковских реквизитов!");
+            }
+        }
+        private async Task AddSignerToCounterparty(int counterpartyId, SignerPreset signer)
+        {
+            string requestString = string.Format(_counterpartyAddSignerPath, counterpartyId);
+
+            string jsonSigner = JsonConvert.SerializeObject(signer.Value);
+
+            var httpContent = new StringContent(jsonSigner, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync(requestString, httpContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Подписант {signer.Value.FullName.Nominative} успешно добавлен к контрагенту(id = {counterpartyId})!");
+            }
+            else
+            {
+                Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}!");
             }
         }
     }
