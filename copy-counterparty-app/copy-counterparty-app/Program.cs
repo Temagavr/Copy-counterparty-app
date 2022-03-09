@@ -1,4 +1,5 @@
-﻿using System;
+﻿using copy_counterparty_app.Domain;
+using System;
 using System.Threading.Tasks;
 
 namespace copy_counterparty_app
@@ -11,7 +12,9 @@ namespace copy_counterparty_app
 
             MyHttpClient client = new MyHttpClient();
             
-            await client.GetCounterparty();
+            Counterparty counterparty = await client.GetCounterparty();
+
+            await client.AddCounterparty(counterparty);
         }
     }
 }

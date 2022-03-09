@@ -10,6 +10,9 @@ namespace copy_counterparty_app.Domain
     /// </summary>
     public partial class Counterparty
     {
+        // Id текущего контрагента
+        public int Id { get; set; }
+
         /// <summary>
         /// Id старого контрагента
         /// </summary>
