@@ -17,10 +17,12 @@ namespace copy_counterparty_app
 
         private const string _baseUrl = "http://localhost:4200/api/v1/counterparties";
 
-        private const string _counterpartiesListPath = _baseUrl + "/66";
+        private const string _counterpartiesListPath = _baseUrl + "/68";
         private const string _counterpartiesSearchPath = _baseUrl + "/search";
         private const string _counterpartiesAddPath = _baseUrl +  "/create";
         private const string _counterpartyAddAccommodationPath = _baseUrl + "/{0}/accommodation-presets/create";
+        private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
+        private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
 
         public async Task<Counterparty> GetCounterparty()
         {
@@ -85,7 +87,7 @@ namespace copy_counterparty_app
 
         public async Task AddCounterparty(Counterparty counterparty)
         {
-            counterparty.Inn = "433333322222";
+            counterparty.Inn = "433332222222";
 
             if (!await IsExistCounterparty(counterparty))
             {
@@ -143,6 +145,15 @@ namespace copy_counterparty_app
                         await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
                     }
                 }
+
+                //Добавление банковских реквизитов к контрагенту в новом генераторе 
+                if (counterparty.BankPresets.Count > 0)
+                {
+                    foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
+                    {
+                        await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
+                    }
+                }
             }
             else
             {
@@ -150,7 +161,7 @@ namespace copy_counterparty_app
             }
         }
 
-        public async Task AddAccommodationToCounterparty(int counterpartyId, AccommodationPreset accommodation)
+        private async Task AddAccommodationToCounterparty(int counterpartyId, AccommodationPreset accommodation)
         {
             string requestString = string.Format(_counterpartyAddAccommodationPath, counterpartyId);
 
@@ -167,7 +178,25 @@ namespace copy_counterparty_app
             {
                 Console.WriteLine("Ошибка при добавлении средства размещения!");
             }
+        }
 
+        private async Task AddBankDetailsToCounterparty(int counterpartyId, BankDetailsPreset bankDetails)
+        {
+            string requestString = string.Format(_counterpartyAddBankDetailsPath, counterpartyId);
+
+            string jsonBankDetails = JsonConvert.SerializeObject(bankDetails.Value);
+
+            var httpContent = new StringContent(jsonBankDetails, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync(requestString, httpContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Банковские реквизиты успешно добавлено к контрагенту(id = {counterpartyId})!");
+            }
+            else
+            {
+                Console.WriteLine("Ошибка при добавлении банковских реквизитов!");
+            }
         }
     }
 }
