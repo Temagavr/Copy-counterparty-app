@@ -15,9 +15,10 @@ namespace copy_counterparty_app
     {
         private HttpClient _client = new HttpClient();
 
-        private const string _counterpartiesListPath = "http://localhost:4200/api/v1/counterparties/4";
+        private const string _counterpartiesListPath = "http://localhost:4200/api/v1/counterparties/66";
         private const string _counterpartiesSearchPath = "http://localhost:4200/api/v1/counterparties/search";
         private const string _counterpartiesAddPath = "http://localhost:4200/api/v1/counterparties/create";
+        private const string _counterpartyAddAccommodationPath = "http://localhost:4200/api/v1/counterparties/{0}/accommodation-presets/create";
 
         public async Task<Counterparty> GetCounterparty()
         {
@@ -27,9 +28,8 @@ namespace copy_counterparty_app
             if (responseMessage.IsSuccessStatusCode)
             {
                 counterparty = ParseCounterparty(responseMessage);
+                ShowCounterparty(counterparty);
             }
-
-            ShowCounterparty(counterparty);
 
             return counterparty;
         } 
@@ -83,11 +83,11 @@ namespace copy_counterparty_app
 
         public async Task AddCounterparty(Counterparty counterparty)
         {
-            counterparty.Inn = "433333333222";
+            counterparty.Inn = "433333322222";
 
             if (!await IsExistCounterparty(counterparty))
             {
-                int oldCounterpartyId = 55;
+                int? oldCounterpartyId = null;
 
                 if(counterparty.OldCounterpartyId != null)
                 {
@@ -115,10 +115,9 @@ namespace copy_counterparty_app
                     counterparty.Kpp,
                     counterparty.Ogrn,
                     counterparty.IsBudgetaryInstitution,
-                    oldCounterpartyId
-                    );
+                    oldCounterpartyId);
 
-                string jsonCounterparty = JsonConvert.SerializeObject(counterparty);
+                string jsonCounterparty = JsonConvert.SerializeObject(createCounterpartyDto);
 
                 var httpContent = new StringContent(jsonCounterparty, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await _client.PostAsync(_counterpartiesAddPath, httpContent);
@@ -131,11 +130,42 @@ namespace copy_counterparty_app
                 {
                     Console.WriteLine("Ошибка при добавлении!");
                 }
+
+                Counterparty newCounterparty = await GetCounterpartyByInn(counterparty.Inn);
+
+                //Добавление средств размещения к контрагенту в новом генераторе 
+                if(counterparty.AccommodationPresets.Count > 0)
+                {
+                    foreach(AccommodationPreset accommodation in counterparty.AccommodationPresets)
+                    {
+                        await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
+                    }
+                }
             }
             else
             {
                 Console.WriteLine("Контрагент уже существует!!!");
             }
+        }
+
+        public async Task AddAccommodationToCounterparty(int counterpartyId, AccommodationPreset accommodation)
+        {
+            string requestString = string.Format(_counterpartyAddAccommodationPath, counterpartyId);
+
+            string jsonAccommodation = JsonConvert.SerializeObject(accommodation.Value);
+
+            var httpContent = new StringContent(jsonAccommodation, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync(requestString, httpContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Средство размещения успешно добавлено к контрагенту(id = {counterpartyId})!");
+            }
+            else
+            {
+                Console.WriteLine("Ошибка при добавлении средства размещения!");
+            }
+
         }
     }
 }
