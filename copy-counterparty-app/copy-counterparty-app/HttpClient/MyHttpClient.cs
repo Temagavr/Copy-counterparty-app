@@ -15,10 +15,12 @@ namespace copy_counterparty_app
     {
         private HttpClient _client = new HttpClient();
 
-        private const string _counterpartiesListPath = "http://localhost:4200/api/v1/counterparties/66";
-        private const string _counterpartiesSearchPath = "http://localhost:4200/api/v1/counterparties/search";
-        private const string _counterpartiesAddPath = "http://localhost:4200/api/v1/counterparties/create";
-        private const string _counterpartyAddAccommodationPath = "http://localhost:4200/api/v1/counterparties/{0}/accommodation-presets/create";
+        private const string _baseUrl = "http://localhost:4200/api/v1/counterparties";
+
+        private const string _counterpartiesListPath = _baseUrl + "/66";
+        private const string _counterpartiesSearchPath = _baseUrl + "/search";
+        private const string _counterpartiesAddPath = _baseUrl +  "/create";
+        private const string _counterpartyAddAccommodationPath = _baseUrl + "/{0}/accommodation-presets/create";
 
         public async Task<Counterparty> GetCounterparty()
         {
