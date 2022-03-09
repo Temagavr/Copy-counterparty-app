@@ -12,9 +12,9 @@ namespace copy_counterparty_app
 
             MyHttpClient client = new MyHttpClient();
             
-            Counterparty counterparty = await client.GetCounterpartyById(70);
+            Counterparty counterparty = await client.GetCounterpartyByIdFromNewGen(70);
 
-            await client.AddCounterparty(counterparty);
+            await client.AddCounterpartyToNewGen(counterparty);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace copy_counterparty_app
         private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
 
-        public async Task<Counterparty> GetCounterpartyById(int? id)
+        public async Task<Counterparty> GetCounterpartyByIdFromNewGen(int? id)
         {
             HttpResponseMessage responseMessage = await _client.GetAsync(string.Format(_counterpartiesListPath, id));
             Counterparty counterparty = null;
@@ -54,7 +54,7 @@ namespace copy_counterparty_app
             return counterparty;
         }
 
-        private async Task<bool> IsExistCounterparty(Counterparty counterparty)
+        private async Task<bool> IsExistCounterpartyInNewGen(Counterparty counterparty)
         {
             SearchPattern searchPattern = new SearchPattern(counterparty.Inn);
             string jsonSearchPattern = JsonConvert.SerializeObject(searchPattern);
@@ -71,7 +71,7 @@ namespace copy_counterparty_app
             return true;
         }
 
-        private async Task<Counterparty> GetCounterpartyByInn(string inn)
+        private async Task<Counterparty> GetCounterpartyByInnFromNewGen(string inn)
         {
             SearchPattern searchPattern = new SearchPattern(inn);
             string jsonSearchPattern = JsonConvert.SerializeObject(searchPattern);
@@ -85,23 +85,23 @@ namespace copy_counterparty_app
             return searchResult.Items.First();
         }
 
-        public async Task AddCounterparty(Counterparty counterparty)
+        public async Task AddCounterpartyToNewGen(Counterparty counterparty)
         {
             counterparty.Inn = "433332222240"; // only for local tests;
 
-            if (!await IsExistCounterparty(counterparty))
+            if (!await IsExistCounterpartyInNewGen(counterparty))
             {
                 int? oldCounterpartyId = null;
 
                 if(counterparty.OldCounterpartyId != null)
                 {
-                    var oldCounterparty = await GetCounterpartyById(counterparty.OldCounterpartyId);
+                    var oldCounterparty = await GetCounterpartyByIdFromNewGen(counterparty.OldCounterpartyId);
                     oldCounterparty.Inn = "433332222240"; // only for local tests;
-                    if (!await IsExistCounterparty(oldCounterparty))
+                    if (!await IsExistCounterpartyInNewGen(oldCounterparty))
                     {
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
-                        await AddCounterparty(oldCounterparty);
-                        var newOldCounterparty = await GetCounterpartyByInn(oldCounterparty.Inn);
+                        await AddCounterpartyToNewGen(oldCounterparty);
+                        var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
                         oldCounterpartyId = newOldCounterparty.Id;
                         counterparty.Inn = "433332222241"; // only for local tests
                     }
@@ -140,7 +140,7 @@ namespace copy_counterparty_app
                     Console.WriteLine("Ошибка при добавлении!");
                 }
 
-                Counterparty newCounterparty = await GetCounterpartyByInn(counterparty.Inn);
+                Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
                 //Добавление средств размещения к контрагенту в новом генераторе 
                 if(counterparty.AccommodationPresets.Count > 0)
