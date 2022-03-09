@@ -17,16 +17,16 @@ namespace copy_counterparty_app
 
         private const string _baseUrl = "http://localhost:4200/api/v1/counterparties";
 
-        private const string _counterpartiesListPath = _baseUrl + "/68";
+        private const string _counterpartiesListPath = _baseUrl + "/{0}";
         private const string _counterpartiesSearchPath = _baseUrl + "/search";
         private const string _counterpartiesAddPath = _baseUrl +  "/create";
         private const string _counterpartyAddAccommodationPath = _baseUrl + "/{0}/accommodation-presets/create";
         private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
 
-        public async Task<Counterparty> GetCounterparty()
+        public async Task<Counterparty> GetCounterpartyById(int? id)
         {
-            HttpResponseMessage responseMessage = await _client.GetAsync(_counterpartiesListPath);
+            HttpResponseMessage responseMessage = await _client.GetAsync(string.Format(_counterpartiesListPath, id));
             Counterparty counterparty = null;
 
             if (responseMessage.IsSuccessStatusCode)
@@ -87,7 +87,7 @@ namespace copy_counterparty_app
 
         public async Task AddCounterparty(Counterparty counterparty)
         {
-            counterparty.Inn = "433332222219";
+            counterparty.Inn = "433332222240"; // only for local tests;
 
             if (!await IsExistCounterparty(counterparty))
             {
@@ -95,13 +95,18 @@ namespace copy_counterparty_app
 
                 if(counterparty.OldCounterpartyId != null)
                 {
-                    if (!await IsExistCounterparty(counterparty.OldCounterparty))
+                    var oldCounterparty = await GetCounterpartyById(counterparty.OldCounterpartyId);
+                    oldCounterparty.Inn = "433332222240"; // only for local tests;
+                    if (!await IsExistCounterparty(oldCounterparty))
                     {
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
+                        await AddCounterparty(oldCounterparty);
+                        var newOldCounterparty = await GetCounterpartyByInn(oldCounterparty.Inn);
+                        oldCounterpartyId = newOldCounterparty.Id;
+                        counterparty.Inn = "433332222241"; // only for local tests
                     }
                     else
                     {
-                        var oldCounterparty = await GetCounterpartyByInn(counterparty.Inn);
                         oldCounterpartyId = oldCounterparty.Id;
                     }
                 }
@@ -188,7 +193,6 @@ namespace copy_counterparty_app
                 Console.WriteLine("Ошибка при добавлении средства размещения!");
             }
         }
-
         private async Task AddBankDetailsToCounterparty(int counterpartyId, BankDetailsPreset bankDetails)
         {
             string requestString = string.Format(_counterpartyAddBankDetailsPath, counterpartyId);

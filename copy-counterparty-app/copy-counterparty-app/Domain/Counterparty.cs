@@ -19,11 +19,6 @@ namespace copy_counterparty_app.Domain
         public int? OldCounterpartyId { get; set; }
 
         /// <summary>
-        /// Старый контрагент
-        /// </summary>
-        public Counterparty OldCounterparty { get; set; }
-
-        /// <summary>
         /// Тип контрагента
         /// </summary>
         public PartyType Type { get; set; }
@@ -107,11 +102,12 @@ namespace copy_counterparty_app.Domain
         public Counterparty()
         {
         }
-
+        /*
         public void SetOldCounterparty( Counterparty oldCounterparty )
         {
             OldCounterparty = oldCounterparty;
         }
+        */
 
         public void AddAccommodationAsPreset( Accommodation accommodation )
         {
