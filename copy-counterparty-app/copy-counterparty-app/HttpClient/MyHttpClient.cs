@@ -106,7 +106,10 @@ namespace copy_counterparty_app
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
                         await AddCounterpartyToNewGen(oldCounterparty);
                         var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
-                        oldCounterpartyId = newOldCounterparty.Id;
+                        if (newOldCounterparty != null)
+                            oldCounterpartyId = newOldCounterparty.Id;
+                        else
+                            return;
                     }
                     else
                     {
