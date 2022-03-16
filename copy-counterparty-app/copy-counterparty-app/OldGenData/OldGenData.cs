@@ -63,6 +63,9 @@ namespace copy_counterparty_app.OldGen
             if (counterparty.MainEmail == "")
                 counterparty.MainEmail = null;
 
+            if (counterparty.Kpp == "")
+                counterparty.Kpp = null;
+
             if (oldCounterparty.Short_Name.Contains("ИП"))
                 counterparty.Type = Domain.Shared.PartyType.IndividualEntrepreneur;
             else

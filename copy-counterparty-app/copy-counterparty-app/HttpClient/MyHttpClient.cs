@@ -110,7 +110,8 @@ namespace copy_counterparty_app
                     }
                     else
                     {
-                        oldCounterpartyId = oldCounterparty.Id;
+                        var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
+                        oldCounterpartyId = newOldCounterparty.Id;
                     }
                 }
 
