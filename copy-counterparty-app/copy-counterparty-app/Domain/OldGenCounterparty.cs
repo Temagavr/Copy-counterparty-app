@@ -77,7 +77,8 @@ namespace copy_counterparty_app.Domain
         /// </summary>
         public bool Is_Budgetary_Institution { get; set; }
 
-        public List<OldGenAccommodation> accommodations { get; set; }
+        public List<OldGenAccommodation> Accommodations { get; set; }
+        public List<OldGenSigner> Signers { get; set; }
 
         public OldGenCounterparty()
         {

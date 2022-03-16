@@ -109,7 +109,7 @@ namespace copy_counterparty_app
                         if (newOldCounterparty != null)
                             oldCounterpartyId = newOldCounterparty.Id;
                         else
-                            return;
+                            return; // Уточнить насчет того если не получилось добавить старого контрагнета, нужно ли добавлять нового без связи 
                     }
                     else
                     {

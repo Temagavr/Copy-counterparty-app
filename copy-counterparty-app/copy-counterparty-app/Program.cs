@@ -12,21 +12,26 @@ namespace copy_counterparty_app
         {
             const string fileCounterpartiesName = "legal_entity.json";
             const string fileAccommodationsName = "accommodation.json";
+            const string fileSignersName = "signer.json";
 
             Console.WriteLine("Program started");
 
             OldGenData.ParseOldGenCounterpartiesData(fileCounterpartiesName);
             OldGenData.ParseOldGenAccommodationsData(fileAccommodationsName);
+            OldGenData.ParseOldGenSignersData(fileSignersName);
+
             OldGenData.SetAccommodationsToCounterparties();
-            
+            OldGenData.SetSignersToCounterparties();
+
             MyHttpClient client = new MyHttpClient();
             
-            for(int i = 0; i < 10; ++i)
+            for(int i = 6; i < 10; ++i)
             {
                 Counterparty counterparty = OldGenData.oldGenCounterparties[i].Map();
 
                 await client.AddCounterpartyToNewGen(counterparty);
             }
+            
         }
     }
 }

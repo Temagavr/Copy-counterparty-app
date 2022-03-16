@@ -14,6 +14,7 @@ namespace copy_counterparty_app.OldGen
     {
         public static List<OldGenCounterparty> oldGenCounterparties { get; set; }
         public static List<OldGenAccommodation> oldGenAccommodations { get; set; }
+        public static List<OldGenSigner> oldGenSigners { get; set; }
 
         public static void ParseOldGenCounterpartiesData(string fileName)
         {
@@ -35,6 +36,27 @@ namespace copy_counterparty_app.OldGen
 
                 oldGenAccommodations = JsonConvert.DeserializeObject<List<OldGenAccommodation>>(text);
             }
+        }
+
+        public static void ParseOldGenSignersData(string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                var reader = new StreamReader(fs);
+                var text = reader.ReadToEnd();
+
+                oldGenSigners = JsonConvert.DeserializeObject<List<OldGenSigner>>(text);
+            }
+        }
+
+        public static OldGenSigner GetSignerById(int id)
+        {
+            return oldGenSigners.Find(x => x.Signer_Id == id);
+        }
+
+        public static List<OldGenSigner> GetSignersByEntityId(int id)
+        {
+            return oldGenSigners.FindAll(x => x.Legal_Entity_Id == id).ToList();
         }
 
         public static OldGenAccommodation GetAccommodationById(int id)
@@ -61,9 +83,19 @@ namespace copy_counterparty_app.OldGen
         {
             foreach(OldGenCounterparty counterparty in oldGenCounterparties)
             {
-                List<OldGenAccommodation> oldGenAccommodations = GetAccommodationsByEntityId(counterparty.Legal_Entity_Id);
+                List<OldGenAccommodation> accommodations = GetAccommodationsByEntityId(counterparty.Legal_Entity_Id);
 
-                counterparty.accommodations = oldGenAccommodations;
+                counterparty.Accommodations = accommodations;
+            }
+        }
+
+        public static void SetSignersToCounterparties()
+        {
+            foreach (OldGenCounterparty counterparty in oldGenCounterparties)
+            {
+                List<OldGenSigner> signers = GetSignersByEntityId(counterparty.Legal_Entity_Id);
+
+                counterparty.Signers = signers;
             }
         }
 
@@ -99,9 +131,14 @@ namespace copy_counterparty_app.OldGen
             if (counterparty.Kpp == "")
                 counterparty.Kpp = null;
 
-            foreach(OldGenAccommodation oldAccommodation in oldCounterparty.accommodations)
+            foreach(OldGenAccommodation oldAccommodation in oldCounterparty.Accommodations)
             {
                 counterparty.AddAccommodationAsPreset(oldAccommodation.Map());
+            }
+
+            foreach (OldGenSigner oldSigner in oldCounterparty.Signers)
+            {
+                counterparty.AddSignerAsPreset(oldSigner.Map());
             }
 
             if (oldCounterparty.Short_Name.Contains("ИП"))
@@ -124,6 +161,22 @@ namespace copy_counterparty_app.OldGen
                 oldAccommodation.Tl_Id );
 
             return accommodation;
+        }
+
+        private static Signer Map(this OldGenSigner oldSigner)
+        {
+            Signer signer = new Signer(
+                new Grammatical.GrammaticalCases(
+                    oldSigner.Full_Name_Nominative,
+                    oldSigner.Full_Name_Genitive ),
+                new Grammatical.GrammaticalCases(
+                    oldSigner.Position_Nominative,
+                    oldSigner.Position_Genitive ),
+                new Grammatical.GrammaticalCases(
+                    oldSigner.Basis_Action_Nominative,
+                    oldSigner.Basis_Action_Genitive ) );
+            
+            return signer;
         }
     }
 }
