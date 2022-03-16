@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 
 namespace copy_counterparty_app.OldGen
 {
-    public class OldGenData
+    public static class OldGenData
     {
-        public List<OldGenCounterparty> oldGenCounterparties { get; set; }
+        public static List<OldGenCounterparty> oldGenCounterparties { get; set; }
 
-        public OldGenData() { }
-
-        public async Task ParseOldGenData(string fileName)
+        public static void ParseOldGenData(string fileName)
         {
             using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
             {
@@ -23,8 +21,54 @@ namespace copy_counterparty_app.OldGen
                 var text = reader.ReadToEnd();
 
                 oldGenCounterparties = JsonConvert.DeserializeObject<List<OldGenCounterparty>>(text);
-                Console.WriteLine($"Data count {oldGenCounterparties.Count}");
             }
+        }
+
+        public static OldGenCounterparty GetCounterpartyById(int? id)
+        {
+            return oldGenCounterparties.Find(x => x.Legal_Entity_Id == id);
+        }
+
+        public static OldGenCounterparty GetCounterpartyByInn(string inn)
+        {
+            return oldGenCounterparties.Find(x => x.Inn == inn);
+        }
+
+        public static Counterparty Map(this OldGenCounterparty oldCounterparty)
+        {
+            Counterparty counterparty = new Counterparty {
+                OldCounterpartyId = oldCounterparty.Old_Legal_Entity_Id,
+                ShortName = oldCounterparty.Short_Name,
+                LegalAddress = oldCounterparty.Legal_Address,
+                PostalAddress = oldCounterparty.Postal_Address,
+                PhoneNumber = oldCounterparty.Phone_Number,
+                MainEmail = oldCounterparty.Main_Email,
+                BookkeepingEmail = oldCounterparty.Bookkeeping_Email,
+                PaymentRegistersEmail = oldCounterparty.Payment_Registers_Email,
+                Inn = oldCounterparty.Inn,
+                Kpp = oldCounterparty.Kpp,
+                Ogrn = oldCounterparty.Ogrn,
+                IsBudgetaryInstitution = oldCounterparty.Is_Budgetary_Institution
+            };
+
+            if (counterparty.PhoneNumber == "")
+                counterparty.PhoneNumber = null;
+
+            if (counterparty.PaymentRegistersEmail == "")
+                counterparty.PaymentRegistersEmail = null;
+
+            if (counterparty.BookkeepingEmail == "")
+                counterparty.BookkeepingEmail = null;
+
+            if (counterparty.MainEmail == "")
+                counterparty.MainEmail = null;
+
+            if (oldCounterparty.Short_Name.Contains("ИП"))
+                counterparty.Type = Domain.Shared.PartyType.IndividualEntrepreneur;
+            else
+                counterparty.Type = Domain.Shared.PartyType.ArtificialPerson;
+
+            return counterparty;
         }
     }
 }

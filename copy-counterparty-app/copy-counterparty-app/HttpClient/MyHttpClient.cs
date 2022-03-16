@@ -8,6 +8,7 @@ using copy_counterparty_app.Domain;
 using copy_counterparty_app.Search;
 using System.IO;
 using Newtonsoft.Json;
+using copy_counterparty_app.OldGen;
 
 namespace copy_counterparty_app
 {
@@ -54,7 +55,7 @@ namespace copy_counterparty_app
             return counterparty;
         }
 
-        private async Task<bool> IsExistCounterpartyInNewGen(Counterparty counterparty)
+        private async Task<bool> IsExistCounterpartyInNewGenByInn(Counterparty counterparty)
         {
             SearchPattern searchPattern = new SearchPattern(counterparty.Inn);
             string jsonSearchPattern = JsonConvert.SerializeObject(searchPattern);
@@ -82,28 +83,34 @@ namespace copy_counterparty_app
             string jsonResponse = response.Content.ReadAsStringAsync().Result;
             SearchResult searchResult = JsonConvert.DeserializeObject<SearchResult>(jsonResponse);
 
-            return searchResult.Items.First();
+            if(searchResult.FilteredCount > 0)
+            {
+                return searchResult.Items.First();
+            }
+
+            return null;
         }
 
         public async Task AddCounterpartyToNewGen(Counterparty counterparty)
         {
-            counterparty.Inn = "433332222240"; // only for local tests;
+            //counterparty.Inn = "433332222240"; // only for local tests;
 
-            if (!await IsExistCounterpartyInNewGen(counterparty))
+            if (!await IsExistCounterpartyInNewGenByInn(counterparty))
             {
                 int? oldCounterpartyId = null;
 
                 if(counterparty.OldCounterpartyId != null)
                 {
-                    var oldCounterparty = await GetCounterpartyByIdFromNewGen(counterparty.OldCounterpartyId);
-                    oldCounterparty.Inn = "433332222240"; // only for local tests;
-                    if (!await IsExistCounterpartyInNewGen(oldCounterparty))
+                    var oldCounterparty = OldGenData.GetCounterpartyById(counterparty.OldCounterpartyId).Map();
+                    //var oldCounterparty = await GetCounterpartyByIdFromNewGen(counterparty.OldCounterpartyId);
+                    //oldCounterparty.Inn = "433332222240"; // only for local tests;
+                    if (!await IsExistCounterpartyInNewGenByInn(oldCounterparty))
                     {
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
                         await AddCounterpartyToNewGen(oldCounterparty);
                         var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
                         oldCounterpartyId = newOldCounterparty.Id;
-                        counterparty.Inn = "433332222241"; // only for local tests
+                        //counterparty.Inn = "433332222241"; // only for local tests
                     }
                     else
                     {
@@ -124,7 +131,7 @@ namespace copy_counterparty_app
                     counterparty.Kpp,
                     counterparty.Ogrn,
                     counterparty.IsBudgetaryInstitution,
-                    oldCounterpartyId);
+                    oldCounterpartyId );
 
                 string jsonCounterparty = JsonConvert.SerializeObject(createCounterpartyDto);
 
@@ -138,6 +145,7 @@ namespace copy_counterparty_app
                 else
                 {
                     Console.WriteLine("Ошибка при добавлении!");
+                    Console.WriteLine(response.ReasonPhrase);
                 }
 
                 Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);

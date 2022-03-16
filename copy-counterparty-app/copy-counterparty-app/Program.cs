@@ -14,22 +14,14 @@ namespace copy_counterparty_app
 
             Console.WriteLine("Program started");
 
-            OldGenData oldData = new OldGenData();
-            await oldData.ParseOldGenData(fileName);
+            OldGenData.ParseOldGenData(fileName);
 
-            Console.WriteLine(oldData.oldGenCounterparties[1].Short_Name);
-            Console.WriteLine(oldData.oldGenCounterparties[1].Postal_Address);
-            Console.WriteLine(oldData.oldGenCounterparties[1].Legal_Entity_Id);
-            Console.WriteLine(oldData.oldGenCounterparties[1].Main_Email);
-            Console.WriteLine(oldData.oldGenCounterparties[1].Inn);
-
-            /*
             MyHttpClient client = new MyHttpClient();
             
-            Counterparty counterparty = await client.GetCounterpartyByIdFromNewGen(70);
+            Counterparty counterparty = OldGenData.oldGenCounterparties[5].Map();
 
             await client.AddCounterpartyToNewGen(counterparty);
-            */
+            
         }
     }
 }
