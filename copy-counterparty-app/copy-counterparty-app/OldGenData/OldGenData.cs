@@ -99,12 +99,31 @@ namespace copy_counterparty_app.OldGen
             if (counterparty.Kpp == "")
                 counterparty.Kpp = null;
 
+            foreach(OldGenAccommodation oldAccommodation in oldCounterparty.accommodations)
+            {
+                counterparty.AddAccommodationAsPreset(oldAccommodation.Map());
+            }
+
             if (oldCounterparty.Short_Name.Contains("ИП"))
                 counterparty.Type = PartyType.IndividualEntrepreneur;
             else
                 counterparty.Type = PartyType.ArtificialPerson;
 
             return counterparty;
+        }
+
+        private static Accommodation Map(this OldGenAccommodation oldAccommodation)
+        {
+            Accommodation accommodation = new Accommodation(
+                oldAccommodation.Name,
+                new Grammatical.GrammaticalCases(
+                    oldAccommodation.Type_Name_Nominative,
+                    oldAccommodation.Type_Name_Genitive ),
+                oldAccommodation.Address,
+                oldAccommodation.Site_Url,
+                oldAccommodation.Tl_Id );
+
+            return accommodation;
         }
     }
 }

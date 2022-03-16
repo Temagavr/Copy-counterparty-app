@@ -138,40 +138,40 @@ namespace copy_counterparty_app
                 if (response.IsSuccessStatusCode)
                 {
                     Console.WriteLine($"Контрагент {counterparty.ShortName} успешно добавлен!");
+
+                    Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
+
+                    //Добавление средств размещения к контрагенту в новом генераторе 
+                    if (counterparty.AccommodationPresets.Count > 0)
+                    {
+                        foreach (AccommodationPreset accommodation in counterparty.AccommodationPresets)
+                        {
+                            await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
+                        }
+                    }
+
+                    //Добавление банковских реквизитов к контрагенту в новом генераторе 
+                    if (counterparty.BankPresets.Count > 0)
+                    {
+                        foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
+                        {
+                            await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
+                        }
+                    }
+
+                    //Добавление подписантов к контрагенту в новом генераторе 
+                    if (counterparty.SignerPresets.Count > 0)
+                    {
+                        foreach (SignerPreset signer in counterparty.SignerPresets)
+                        {
+                            await AddSignerToCounterparty(newCounterparty.Id, signer);
+                        }
+                    }
                 }
                 else
                 {
                     Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}!");
                     Console.WriteLine(response.ReasonPhrase);
-                }
-
-                Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
-
-                //Добавление средств размещения к контрагенту в новом генераторе 
-                if(counterparty.AccommodationPresets.Count > 0)
-                {
-                    foreach(AccommodationPreset accommodation in counterparty.AccommodationPresets)
-                    {
-                        await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
-                    }
-                }
-
-                //Добавление банковских реквизитов к контрагенту в новом генераторе 
-                if (counterparty.BankPresets.Count > 0)
-                {
-                    foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
-                    {
-                        await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
-                    }
-                }
-
-                //Добавление подписантов к контрагенту в новом генераторе 
-                if (counterparty.SignerPresets.Count > 0)
-                {
-                    foreach (SignerPreset signer in counterparty.SignerPresets)
-                    {
-                        await AddSignerToCounterparty(newCounterparty.Id, signer);
-                    }
                 }
             }
             else
