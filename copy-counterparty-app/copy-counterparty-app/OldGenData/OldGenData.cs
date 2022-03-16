@@ -59,20 +59,11 @@ namespace copy_counterparty_app.OldGen
 
         public static void SetAccommodationsToCounterparties()
         {
-            for(int i = 0; i < 1; ++i)
+            foreach(OldGenCounterparty counterparty in oldGenCounterparties)
             {
-                List<OldGenAccommodation> oldGenAccommodations = GetAccommodationsByEntityId(oldGenCounterparties[i].Legal_Entity_Id);
+                List<OldGenAccommodation> oldGenAccommodations = GetAccommodationsByEntityId(counterparty.Legal_Entity_Id);
 
-                if (oldGenAccommodations.Count > 0)
-                {
-                    Console.WriteLine(oldGenAccommodations[0].Name);
-                    Console.WriteLine(oldGenAccommodations[0].Site_Url);
-                    Console.WriteLine(oldGenAccommodations[0].Address);
-                    Console.WriteLine(oldGenAccommodations[0].Type_Name_Genitive);
-                    Console.WriteLine(oldGenAccommodations[0].Type_Name_Nominative);
-                }
-
-                oldGenCounterparties[i].accommodations = oldGenAccommodations;
+                counterparty.accommodations = oldGenAccommodations;
             }
         }
 
