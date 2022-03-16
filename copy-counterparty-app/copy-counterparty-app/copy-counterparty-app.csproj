@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Domain\Contract\AdditionalAgreement\" />
-    <Folder Include="Domain\Shared\" />
     <Folder Include="Grammatical\" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using copy_counterparty_app.Domain;
+using copy_counterparty_app.Domain.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,9 @@ namespace copy_counterparty_app.OldGen
     public static class OldGenData
     {
         public static List<OldGenCounterparty> oldGenCounterparties { get; set; }
+        public static List<OldGenAccommodation> oldGenAccommodations { get; set; }
 
-        public static void ParseOldGenData(string fileName)
+        public static void ParseOldGenCounterpartiesData(string fileName)
         {
             using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
             {
@@ -24,6 +26,27 @@ namespace copy_counterparty_app.OldGen
             }
         }
 
+        public static void ParseOldGenAccommodationsData(string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                var reader = new StreamReader(fs);
+                var text = reader.ReadToEnd();
+
+                oldGenAccommodations = JsonConvert.DeserializeObject<List<OldGenAccommodation>>(text);
+            }
+        }
+
+        public static OldGenAccommodation GetAccommodationById(int id)
+        {
+            return oldGenAccommodations.Find(x => x.Accommodation_Id == id);
+        }
+
+        public static List<OldGenAccommodation> GetAccommodationsByEntityId(int id)
+        {
+            return oldGenAccommodations.FindAll(x => x.Legal_Entity_Id == id).ToList();
+        }
+
         public static OldGenCounterparty GetCounterpartyById(int? id)
         {
             return oldGenCounterparties.Find(x => x.Legal_Entity_Id == id);
@@ -32,6 +55,25 @@ namespace copy_counterparty_app.OldGen
         public static OldGenCounterparty GetCounterpartyByInn(string inn)
         {
             return oldGenCounterparties.Find(x => x.Inn == inn);
+        }
+
+        public static void SetAccommodationsToCounterparties()
+        {
+            for(int i = 0; i < 1; ++i)
+            {
+                List<OldGenAccommodation> oldGenAccommodations = GetAccommodationsByEntityId(oldGenCounterparties[i].Legal_Entity_Id);
+
+                if (oldGenAccommodations.Count > 0)
+                {
+                    Console.WriteLine(oldGenAccommodations[0].Name);
+                    Console.WriteLine(oldGenAccommodations[0].Site_Url);
+                    Console.WriteLine(oldGenAccommodations[0].Address);
+                    Console.WriteLine(oldGenAccommodations[0].Type_Name_Genitive);
+                    Console.WriteLine(oldGenAccommodations[0].Type_Name_Nominative);
+                }
+
+                oldGenCounterparties[i].accommodations = oldGenAccommodations;
+            }
         }
 
         public static Counterparty Map(this OldGenCounterparty oldCounterparty)
@@ -67,9 +109,9 @@ namespace copy_counterparty_app.OldGen
                 counterparty.Kpp = null;
 
             if (oldCounterparty.Short_Name.Contains("ИП"))
-                counterparty.Type = Domain.Shared.PartyType.IndividualEntrepreneur;
+                counterparty.Type = PartyType.IndividualEntrepreneur;
             else
-                counterparty.Type = Domain.Shared.PartyType.ArtificialPerson;
+                counterparty.Type = PartyType.ArtificialPerson;
 
             return counterparty;
         }
