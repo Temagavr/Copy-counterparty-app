@@ -15,6 +15,7 @@ namespace copy_counterparty_app.OldGen
         public static List<OldGenCounterparty> oldGenCounterparties { get; set; }
         public static List<OldGenAccommodation> oldGenAccommodations { get; set; }
         public static List<OldGenSigner> oldGenSigners { get; set; }
+        public static List<OldGenBank> oldGenBanks { get; set; }
 
         public static void ParseOldGenCounterpartiesData(string fileName)
         {
@@ -47,6 +48,27 @@ namespace copy_counterparty_app.OldGen
 
                 oldGenSigners = JsonConvert.DeserializeObject<List<OldGenSigner>>(text);
             }
+        }
+
+        public static void ParseOldGenBanksData(string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                var reader = new StreamReader(fs);
+                var text = reader.ReadToEnd();
+
+                oldGenBanks = JsonConvert.DeserializeObject<List<OldGenBank>>(text);
+            }
+        }
+
+        public static OldGenBank GetBankById(int id)
+        {
+            return oldGenBanks.Find(x => x.Bank_Id == id);
+        }
+
+        public static List<OldGenBank> GetBanksByEntityId(int id)
+        {
+            return oldGenBanks.FindAll(x => x.Legal_Entity_Id == id).ToList();
         }
 
         public static OldGenSigner GetSignerById(int id)
@@ -98,6 +120,15 @@ namespace copy_counterparty_app.OldGen
                 counterparty.Signers = signers;
             }
         }
+        public static void SetBanksToCounterparties()
+        {
+            foreach (OldGenCounterparty counterparty in oldGenCounterparties)
+            {
+                List<OldGenBank> banks = GetBanksByEntityId(counterparty.Legal_Entity_Id);
+
+                counterparty.Banks = banks;
+            }
+        }
 
         public static Counterparty Map(this OldGenCounterparty oldCounterparty)
         {
@@ -141,6 +172,11 @@ namespace copy_counterparty_app.OldGen
                 counterparty.AddSignerAsPreset(oldSigner.Map());
             }
 
+            foreach (OldGenBank oldBank in oldCounterparty.Banks)
+            {
+                counterparty.AddBankDetailsAsPreset(oldBank.Map());
+            }
+
             if (oldCounterparty.Short_Name.Contains("ИП"))
                 counterparty.Type = PartyType.IndividualEntrepreneur;
             else
@@ -177,6 +213,26 @@ namespace copy_counterparty_app.OldGen
                     oldSigner.Basis_Action_Genitive ) );
             
             return signer;
+        }
+
+        private static BankDetails Map(this OldGenBank oldBank)
+        {
+            BankDetails bank = new BankDetails(
+                oldBank.Name,
+                oldBank.Bic,
+                oldBank.Correspondent_Account,
+                oldBank.IsBudgetaryInstitution,
+                oldBank.Settlement_Account,
+                oldBank.Kbk,
+                oldBank.Personal_Account );
+
+            if (bank.Kbk == "")
+                bank.Kbk = null;
+
+            if (bank.PersonalAccount == "")
+                bank.PersonalAccount = null;
+
+            return bank;
         }
     }
 }

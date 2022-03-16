@@ -79,6 +79,7 @@ namespace copy_counterparty_app.Domain
 
         public List<OldGenAccommodation> Accommodations { get; set; }
         public List<OldGenSigner> Signers { get; set; }
+        public List<OldGenBank> Banks { get; set; }
 
         public OldGenCounterparty()
         {
