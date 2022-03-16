@@ -136,11 +136,11 @@ namespace copy_counterparty_app
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Контрагент успешно добавлен!");
+                    Console.WriteLine($"Контрагент {counterparty.ShortName} успешно добавлен!");
                 }
                 else
                 {
-                    Console.WriteLine("Ошибка при добавлении!");
+                    Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}!");
                     Console.WriteLine(response.ReasonPhrase);
                 }
 
@@ -175,7 +175,7 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine("Контрагент уже существует!!!");
+                Console.WriteLine($"Контрагент {counterparty.ShortName} уже существует!!!");
             }
         }
 
