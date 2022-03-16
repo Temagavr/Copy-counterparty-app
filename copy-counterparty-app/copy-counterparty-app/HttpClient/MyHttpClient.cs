@@ -93,8 +93,6 @@ namespace copy_counterparty_app
 
         public async Task AddCounterpartyToNewGen(Counterparty counterparty)
         {
-            //counterparty.Inn = "433332222240"; // only for local tests;
-
             if (!await IsExistCounterpartyInNewGenByInn(counterparty))
             {
                 int? oldCounterpartyId = null;
@@ -102,15 +100,13 @@ namespace copy_counterparty_app
                 if(counterparty.OldCounterpartyId != null)
                 {
                     var oldCounterparty = OldGenData.GetCounterpartyById(counterparty.OldCounterpartyId).Map();
-                    //var oldCounterparty = await GetCounterpartyByIdFromNewGen(counterparty.OldCounterpartyId);
-                    //oldCounterparty.Inn = "433332222240"; // only for local tests;
+
                     if (!await IsExistCounterpartyInNewGenByInn(oldCounterparty))
                     {
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
                         await AddCounterpartyToNewGen(oldCounterparty);
                         var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
                         oldCounterpartyId = newOldCounterparty.Id;
-                        //counterparty.Inn = "433332222241"; // only for local tests
                     }
                     else
                     {
