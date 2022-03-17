@@ -198,7 +198,7 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine("Ошибка при добавлении средства размещения!");
+                Console.WriteLine($"Ошибка при добавлении средства размещения {accommodation.Value.Name}, причина - {response.ReasonPhrase}!");
             }
         }
         private async Task AddBankDetailsToCounterparty(int counterpartyId, BankDetailsPreset bankDetails)
@@ -216,7 +216,7 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine("Ошибка при добавлении банковских реквизитов!");
+                Console.WriteLine($"Ошибка при добавлении банковских реквизитов {bankDetails.Value.Name}, причина - {response.ReasonPhrase}!");
             }
         }
         private async Task AddSignerToCounterparty(int counterpartyId, SignerPreset signer)
@@ -234,7 +234,7 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}!");
+                Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {response.ReasonPhrase}!");
             }
         }
     }

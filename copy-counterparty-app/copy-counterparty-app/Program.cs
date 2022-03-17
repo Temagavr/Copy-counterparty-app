@@ -28,7 +28,7 @@ namespace copy_counterparty_app
             
             MyHttpClient client = new MyHttpClient();
             
-            for(int i = 6; i < 7; ++i)
+            for(int i = 6; i < 8; ++i)
             {
                 Counterparty counterparty = OldGenData.oldGenCounterparties[i].Map();
 
