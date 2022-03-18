@@ -154,7 +154,19 @@ namespace copy_counterparty_app
                         foreach (AccommodationPreset accommodation in counterparty.AccommodationPresets)
                         {
                             if (!newCounterparty.ContainsAccommodationPreset(accommodation.Value))
+                            {
+                                if (newCounterparty.AccommodationPresets.Count > 0)
+                                {
+                                    Console.WriteLine($"gram block - {newCounterparty.AccommodationPresets[0].Value.TypeName == accommodation.Value.TypeName}");
+                                    Console.WriteLine($"name {newCounterparty.AccommodationPresets[0].Value.Name == accommodation.Value.Name}");
+                                    Console.WriteLine($"address {newCounterparty.AccommodationPresets[0].Value.Address == accommodation.Value.Address}");
+                                    Console.WriteLine($"site {newCounterparty.AccommodationPresets[0].Value.SiteUrl == accommodation.Value.SiteUrl}");
+                                    Console.WriteLine($"nominative {newCounterparty.AccommodationPresets[0].Value.TypeName.Nominative == accommodation.Value.TypeName.Nominative}");
+                                    Console.WriteLine($"genitive {newCounterparty.AccommodationPresets[0].Value.TypeName.Genitive == accommodation.Value.TypeName.Genitive}");
+                                    Console.WriteLine($"tlid {newCounterparty.AccommodationPresets[0].Value.TlId == accommodation.Value.TlId}");
+                                }
                                 await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
+                            }
                             else
                                 Console.WriteLine($"У контрагента уже есть ср-во размещения {accommodation.Value.Name}");
                         }

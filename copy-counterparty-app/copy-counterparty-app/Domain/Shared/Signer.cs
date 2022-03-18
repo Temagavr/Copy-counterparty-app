@@ -76,11 +76,21 @@ namespace copy_counterparty_app.Domain.Shared
                 BasicAction );
         }
 
-        protected IEnumerable<object> GetEqualityComponents()
+        public bool Equals(Signer signer)
         {
-            yield return FullName;
-            yield return Position;
-            yield return BasicAction;
+            if (FullName != signer.FullName)
+                return false;
+
+            if (Position != signer.Position)
+                return false;
+
+            if (BasicActionNominative != signer.BasicActionNominative)
+                return false;
+
+            if (BasicActionGenitive != signer.BasicActionGenitive)
+                return false;
+
+            return true;
         }
     }
 }

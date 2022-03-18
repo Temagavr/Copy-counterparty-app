@@ -78,15 +78,30 @@ namespace copy_counterparty_app.Domain.Shared
                 PersonalAccount );
         }
 
-        protected IEnumerable<object> GetEqualityComponents()
+        public bool Equals(BankDetails bank)
         {
-            yield return Name;
-            yield return Bic;
-            yield return CorrespondentAccount;
-            yield return IsBudgetaryInstitution;
-            yield return SettlementAccount;
-            yield return Kbk;
-            yield return PersonalAccount;
+            if (Name != bank.Name)
+                return false;
+
+            if (Bic != bank.Bic)
+                return false;
+
+            if (CorrespondentAccount != bank.CorrespondentAccount)
+                return false;
+
+            if (IsBudgetaryInstitution != bank.IsBudgetaryInstitution)
+                return false;
+
+            if (SettlementAccount != bank.SettlementAccount)
+                return false;
+
+            if (Kbk != bank.Kbk)
+                return false;
+
+            if (PersonalAccount != bank.PersonalAccount)
+                return false;
+
+            return true;
         }
     }
 }

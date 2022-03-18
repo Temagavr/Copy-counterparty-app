@@ -72,13 +72,27 @@ namespace copy_counterparty_app.Domain.Shared
                 TlId );
         }
 
-        protected IEnumerable<object> GetEqualityComponents()
+        public bool Equals(Accommodation accommodation)
         {
-            yield return Name;
-            yield return TypeName;
-            yield return Address;
-            yield return SiteUrl;
-            yield return TlId;
+            if (Name != accommodation.Name)
+                return false;
+
+            if (TypeNameNominative != accommodation.TypeNameNominative)
+                return false;
+
+            if (TypeNameGenitive != accommodation.TypeNameGenitive)
+                return false;
+
+            if (Address != accommodation.Address)
+                return false;
+
+            if (SiteUrl != accommodation.SiteUrl)
+                return false;
+
+            if (TlId != accommodation.TlId)
+                return false;
+
+            return true;
         }
     }
 }
