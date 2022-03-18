@@ -149,31 +149,13 @@ namespace copy_counterparty_app
                     Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
                     //Добавление средств размещения к контрагенту в новом генераторе 
-                    await AddAccommodations(newCounterparty, counterparty);
+                    await AddAllAccommodations(newCounterparty, counterparty);
 
                     //Добавление банковских реквизитов к контрагенту в новом генераторе 
-                    if (counterparty.BankPresets.Count > 0)
-                    {
-                        foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
-                        {
-                            if(!newCounterparty.ContainsBankDetailsPreset(bankDetails.Value))
-                                await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
-                            else
-                                Console.WriteLine($"У контрагента уже есть реквизиты {bankDetails.Value.Name}");
-                        }
-                    }
+                    await AddAllBankDetails(newCounterparty, counterparty);
 
                     //Добавление подписантов к контрагенту в новом генераторе 
-                    if (counterparty.SignerPresets.Count > 0)
-                    {
-                        foreach (SignerPreset signer in counterparty.SignerPresets)
-                        {
-                            if(!newCounterparty.ContainsSignerPreset(signer.Value))
-                                await AddSignerToCounterparty(newCounterparty.Id, signer);
-                            else
-                                Console.WriteLine($"У контрагента уже есть подписант {signer.Value.FullName.Nominative}");
-                        }
-                    }
+                    await AddAllSigners(newCounterparty, counterparty);
                 }
                 else
                 {
@@ -189,7 +171,7 @@ namespace copy_counterparty_app
             }
         }
 
-        private async Task AddAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
+        private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
         {
             if (oldCounterpartyData.AccommodationPresets.Count > 0)
             {
@@ -201,6 +183,33 @@ namespace copy_counterparty_app
                     }
                     else
                         Console.WriteLine($"У контрагента уже есть ср-во размещения {accommodation.Value.Name}");
+                }
+            }
+        }
+
+        private async Task AddAllBankDetails(Counterparty counterparty, Counterparty oldCounterpartyData)
+        {
+            if (oldCounterpartyData.BankPresets.Count > 0)
+            {
+                foreach (BankDetailsPreset bankDetails in oldCounterpartyData.BankPresets)
+                {
+                    if (!counterparty.ContainsBankDetailsPreset(bankDetails.Value))
+                        await AddBankDetailsToCounterparty(counterparty.Id, bankDetails);
+                    else
+                        Console.WriteLine($"У контрагента уже есть реквизиты {bankDetails.Value.Name}");
+                }
+            }
+        }
+        private async Task AddAllSigners(Counterparty counterparty, Counterparty oldCounterpartyData)
+        {
+            if (oldCounterpartyData.SignerPresets.Count > 0)
+            {
+                foreach (SignerPreset signer in oldCounterpartyData.SignerPresets)
+                {
+                    if (!counterparty.ContainsSignerPreset(signer.Value))
+                        await AddSignerToCounterparty(counterparty.Id, signer);
+                    else
+                        Console.WriteLine($"У контрагента уже есть подписант {signer.Value.FullName.Nominative}");
                 }
             }
         }
