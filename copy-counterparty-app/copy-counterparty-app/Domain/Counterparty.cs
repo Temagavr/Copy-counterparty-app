@@ -179,7 +179,7 @@ namespace copy_counterparty_app.Domain
 
         public bool ContainsAccommodationPreset( Accommodation accommodation )
         {
-            return AccommodationPresets.Any( preset => preset.Value.Equals( accommodation ) );
+           return AccommodationPresets.Any( preset => preset.Value.Equals( accommodation ) );
         }
 
         public bool ContainsBankDetailsPreset( BankDetails bankDetails )

@@ -109,7 +109,11 @@ namespace copy_counterparty_app
                         if (newOldCounterparty != null)
                             oldCounterpartyId = newOldCounterparty.Id;
                         else
+                        {
+                            Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}!");
+
                             return; // Уточнить насчет того если не получилось добавить старого контрагнета, нужно ли добавлять нового без связи 
+                        }
                     }
                     else
                     {
@@ -140,7 +144,7 @@ namespace copy_counterparty_app
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Контрагент {counterparty.ShortName} успешно добавлен!");
+                    Console.WriteLine($"\nКонтрагент {counterparty.ShortName} успешно добавлен!");
 
                     Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
@@ -149,7 +153,10 @@ namespace copy_counterparty_app
                     {
                         foreach (AccommodationPreset accommodation in counterparty.AccommodationPresets)
                         {
-                            await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
+                            if (!newCounterparty.ContainsAccommodationPreset(accommodation.Value))
+                                await AddAccommodationToCounterparty(newCounterparty.Id, accommodation);
+                            else
+                                Console.WriteLine($"У контрагента уже есть ср-во размещения {accommodation.Value.Name}");
                         }
                     }
 
@@ -158,7 +165,10 @@ namespace copy_counterparty_app
                     {
                         foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
                         {
-                            //await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
+                            if(!newCounterparty.ContainsBankDetailsPreset(bankDetails.Value))
+                                await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
+                            else
+                                Console.WriteLine($"У контрагента уже есть реквизиты {bankDetails.Value.Name}");
                         }
                     }
 
@@ -167,7 +177,10 @@ namespace copy_counterparty_app
                     {
                         foreach (SignerPreset signer in counterparty.SignerPresets)
                         {
-                            //await AddSignerToCounterparty(newCounterparty.Id, signer);
+                            if(!newCounterparty.ContainsSignerPreset(signer.Value))
+                                await AddSignerToCounterparty(newCounterparty.Id, signer);
+                            else
+                                Console.WriteLine($"У контрагента уже есть подписант {signer.Value.FullName.Nominative}");
                         }
                     }
                 }
@@ -176,12 +189,12 @@ namespace copy_counterparty_app
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
                     ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
-                    Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
+                    Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
                 }
             }
             else
             {
-                Console.WriteLine($"Контрагент {counterparty.ShortName} уже существует!!!");
+                Console.WriteLine($"Контрагент {counterparty.ShortName} уже существует!!!\n");
             }
         }
 
