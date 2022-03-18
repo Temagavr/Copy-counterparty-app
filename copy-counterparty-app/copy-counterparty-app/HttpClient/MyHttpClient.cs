@@ -169,8 +169,6 @@ namespace copy_counterparty_app
             {
                 Console.WriteLine($"\nКонтрагент {counterparty.ShortName} уже существует!!!");
 
-                // Добавить сюда проходы по добавлению несуществующих данных в существующем контрагенту
-
                 Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
                 //Добавление средств размещения к контрагенту в новом генераторе 
