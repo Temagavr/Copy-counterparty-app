@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Contract\AdditionalAgreement\" />
+    <Compile Remove="Domain\Contract\**" />
+    <EmbeddedResource Remove="Domain\Contract\**" />
+    <None Remove="Domain\Contract\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Grammatical\" />
   </ItemGroup>
 

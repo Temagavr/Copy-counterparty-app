@@ -158,7 +158,7 @@ namespace copy_counterparty_app
                     {
                         foreach (BankDetailsPreset bankDetails in counterparty.BankPresets)
                         {
-                            await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
+                            //await AddBankDetailsToCounterparty(newCounterparty.Id, bankDetails);
                         }
                     }
 
@@ -167,14 +167,16 @@ namespace copy_counterparty_app
                     {
                         foreach (SignerPreset signer in counterparty.SignerPresets)
                         {
-                            await AddSignerToCounterparty(newCounterparty.Id, signer);
+                            //await AddSignerToCounterparty(newCounterparty.Id, signer);
                         }
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}!");
-                    Console.WriteLine(response.ReasonPhrase);
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                    Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
                 }
             }
             else
@@ -198,7 +200,10 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine($"Ошибка при добавлении средства размещения {accommodation.Value.Name}, причина - {response.ReasonPhrase}!");
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                Console.WriteLine($"Ошибка при добавлении средства размещения {accommodation.Value.Name}, причина - {errorResponse.Details}!");
             }
         }
         private async Task AddBankDetailsToCounterparty(int counterpartyId, BankDetailsPreset bankDetails)
@@ -216,7 +221,10 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine($"Ошибка при добавлении банковских реквизитов {bankDetails.Value.Name}, причина - {response.ReasonPhrase}!");
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                Console.WriteLine($"Ошибка при добавлении банковских реквизитов {bankDetails.Value.Name}, причина - {errorResponse.Details}!");
             }
         }
         private async Task AddSignerToCounterparty(int counterpartyId, SignerPreset signer)
@@ -234,7 +242,10 @@ namespace copy_counterparty_app
             }
             else
             {
-                Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {response.ReasonPhrase}!");
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {errorResponse.Details}!");
             }
         }
     }
