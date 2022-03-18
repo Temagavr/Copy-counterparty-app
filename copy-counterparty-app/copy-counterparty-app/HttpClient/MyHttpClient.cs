@@ -25,6 +25,8 @@ namespace copy_counterparty_app
         private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
 
+        private const string _dadataSearchCounterpartyPath = "https://dadata.ru/api/v2/suggest/party";
+
         public async Task<Counterparty> GetCounterpartyByIdFromNewGen(int? id)
         {
             HttpResponseMessage responseMessage = await _client.GetAsync(string.Format(_counterpartiesListPath, id));
@@ -163,6 +165,7 @@ namespace copy_counterparty_app
 
                     Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
                     // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
+                    // await SearchInfoOnDadata(counterparty.Inn); // Ошибка безопасности 
                 }
             }
             else
@@ -182,7 +185,24 @@ namespace copy_counterparty_app
             }
         }
 
+        private async Task<DadataSearchResult> SearchInfoOnDadata(string inn)
+        {
+            DadataSearchQuery query = new DadataSearchQuery(inn);
+            string jsonQuery = JsonConvert.SerializeObject(query);
 
+            var httpContent = new StringContent(jsonQuery, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync(_dadataSearchCounterpartyPath, httpContent);
+
+            string jsonResponse = response.Content.ReadAsStringAsync().Result;
+            DadataSearchResult searchResult = JsonConvert.DeserializeObject<DadataSearchResult>(jsonResponse);
+
+            if (searchResult.Suggestions.Count > 0)
+            {
+                return searchResult;
+            }
+
+            return null;
+        }
 
         private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
         {
