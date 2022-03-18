@@ -106,12 +106,11 @@ namespace copy_counterparty_app
                         //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
                         await AddCounterpartyToNewGen(oldCounterparty);
                         var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
+
                         if (newOldCounterparty != null)
                             oldCounterpartyId = newOldCounterparty.Id;
                         else
                         {
-                            Console.WriteLine($"Ошибка при добавлении контрагента {counterparty.ShortName}!");
-
                             return; // Уточнить насчет того если не получилось добавить старого контрагнета, нужно ли добавлять нового без связи 
                         }
                     }
@@ -163,13 +162,29 @@ namespace copy_counterparty_app
                     ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
                     Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
+                    // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
                 }
             }
             else
             {
-                Console.WriteLine($"Контрагент {counterparty.ShortName} уже существует!!!\n");
+                Console.WriteLine($"\nКонтрагент {counterparty.ShortName} уже существует!!!");
+
+                // Добавить сюда проходы по добавлению несуществующих данных в существующем контрагенту
+
+                Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
+
+                //Добавление средств размещения к контрагенту в новом генераторе 
+                await AddAllAccommodations(newCounterparty, counterparty);
+
+                //Добавление банковских реквизитов к контрагенту в новом генераторе 
+                await AddAllBankDetails(newCounterparty, counterparty);
+
+                //Добавление подписантов к контрагенту в новом генераторе 
+                await AddAllSigners(newCounterparty, counterparty);
             }
         }
+
+
 
         private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
         {
@@ -184,7 +199,6 @@ namespace copy_counterparty_app
                 }
             }
         }
-
         private async Task AddAllBankDetails(Counterparty counterparty, Counterparty oldCounterpartyData)
         {
             if (oldCounterpartyData.BankPresets.Count > 0)
@@ -211,7 +225,6 @@ namespace copy_counterparty_app
                 }
             }
         }
-
         private async Task AddAccommodationToCounterparty(int counterpartyId, AccommodationPreset accommodation)
         {
             string requestString = string.Format(_counterpartyAddAccommodationPath, counterpartyId);

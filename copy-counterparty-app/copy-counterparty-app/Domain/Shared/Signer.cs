@@ -78,10 +78,16 @@ namespace copy_counterparty_app.Domain.Shared
 
         public bool Equals(Signer signer)
         {
-            if (FullName != signer.FullName)
+            if (FullNameNominative != signer.FullNameNominative)
                 return false;
 
-            if (Position != signer.Position)
+            if (FullNameGenitive!= signer.FullNameGenitive)
+                return false;
+
+            if (PositionNominative != signer.PositionNominative)
+                return false;
+
+            if (PositionGenitive != signer.PositionGenitive)
                 return false;
 
             if (BasicActionNominative != signer.BasicActionNominative)
