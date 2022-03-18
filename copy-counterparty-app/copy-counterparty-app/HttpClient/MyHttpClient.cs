@@ -178,9 +178,7 @@ namespace copy_counterparty_app
                 foreach (AccommodationPreset accommodation in oldCounterpartyData.AccommodationPresets)
                 {
                     if (!counterparty.ContainsAccommodationPreset(accommodation.Value))
-                    {
                         await AddAccommodationToCounterparty(counterparty.Id, accommodation);
-                    }
                     else
                         Console.WriteLine($"У контрагента уже есть ср-во размещения {accommodation.Value.Name}");
                 }
