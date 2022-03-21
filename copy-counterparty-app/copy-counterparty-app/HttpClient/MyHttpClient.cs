@@ -9,6 +9,7 @@ using copy_counterparty_app.Search;
 using System.IO;
 using Newtonsoft.Json;
 using copy_counterparty_app.OldGen;
+using System.Net.Http.Headers;
 
 namespace copy_counterparty_app
 {
@@ -165,7 +166,7 @@ namespace copy_counterparty_app
 
                     Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
                     // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
-                    // await SearchInfoOnDadata(counterparty.Inn); // Ошибка безопасности 
+                    await SearchInfoOnDadata(counterparty.Inn); // Ошибка безопасности 
                 }
             }
             else
@@ -189,19 +190,27 @@ namespace copy_counterparty_app
         {
             DadataSearchQuery query = new DadataSearchQuery(inn);
             string jsonQuery = JsonConvert.SerializeObject(query);
+            const string daDataToken = "db843b54d0653886c2d97189c8b0f8ee1ca71405";
 
-            var httpContent = new StringContent(jsonQuery, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _client.PostAsync(_dadataSearchCounterpartyPath, httpContent);
-
-            string jsonResponse = response.Content.ReadAsStringAsync().Result;
-            DadataSearchResult searchResult = JsonConvert.DeserializeObject<DadataSearchResult>(jsonResponse);
-
-            if (searchResult.Suggestions.Count > 0)
+            using (var request = new HttpRequestMessage(HttpMethod.Post, _dadataSearchCounterpartyPath))
             {
-                return searchResult;
-            }
 
-            return null;
+                var httpContent = new StringContent(jsonQuery, Encoding.UTF8, "application/json");
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", daDataToken);
+
+                HttpResponseMessage response = await _client.PostAsync(_dadataSearchCounterpartyPath, httpContent);
+
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                DadataSearchResult searchResult = JsonConvert.DeserializeObject<DadataSearchResult>(jsonResponse);
+
+                if (searchResult.Suggestions.Count > 0)
+                {
+                    return searchResult;
+                }
+
+                return null;
+            }
         }
 
         private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
