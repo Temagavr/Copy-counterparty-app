@@ -191,5 +191,42 @@ namespace copy_counterparty_app.Domain
         {
             return SignerPresets.Any( preset => preset.Value.Equals( signer ) );
         }
+
+        public Counterparty Copy(Counterparty counterparty)
+        {
+            Counterparty copyCounterparty = new Counterparty();
+
+            copyCounterparty.ShortName = counterparty.ShortName;
+            copyCounterparty.Id = counterparty.Id;
+            copyCounterparty.OldCounterpartyId = counterparty.OldCounterpartyId;
+            copyCounterparty.Type = counterparty.Type;
+            copyCounterparty.LegalAddress = counterparty.LegalAddress;
+            copyCounterparty.PostalAddress = counterparty.PostalAddress;
+            copyCounterparty.PhoneNumber = counterparty.PhoneNumber;
+            copyCounterparty.MainEmail = counterparty.MainEmail;
+            copyCounterparty.BookkeepingEmail = counterparty.BookkeepingEmail;
+            copyCounterparty.PaymentRegistersEmail = counterparty.PaymentRegistersEmail;
+            copyCounterparty.Inn = counterparty.Inn;
+            copyCounterparty.Kpp = counterparty.Kpp;
+            copyCounterparty.Ogrn = counterparty.Ogrn;
+            copyCounterparty.IsBudgetaryInstitution = counterparty.IsBudgetaryInstitution;
+
+            foreach(AccommodationPreset accommodation in counterparty.AccommodationPresets)
+            {
+                copyCounterparty.AddAccommodationAsPreset(accommodation.Value);
+            }
+
+            foreach(BankDetailsPreset bankDetails in counterparty.BankPresets)
+            {
+                copyCounterparty.AddBankDetailsAsPreset(bankDetails.Value);
+            }
+
+            foreach(SignerPreset signerPreset in counterparty.SignerPresets)
+            {
+                copyCounterparty.AddSignerAsPreset(signerPreset.Value);
+            }
+
+            return copyCounterparty;
+        }
     }
 }

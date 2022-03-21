@@ -33,6 +33,14 @@ namespace copy_counterparty_app.Grammatical
                 Genitive );
         }
 
+        public bool Equals(GrammaticalCases cases)
+        {
+            if (cases.Nominative == Nominative && cases.Genitive == Genitive)
+                return true;
+            
+            return false;
+        }
+
         protected IEnumerable<object> GetEqualityComponents()
         {
             yield return Nominative;

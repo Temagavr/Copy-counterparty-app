@@ -168,9 +168,10 @@ namespace copy_counterparty_app
                     
                     // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
                     DadataSearchResult actualData = await SearchInfoOnDadata(counterparty.Inn);
-                    UpdateCounterpartyInfo(actualData, ref counterparty);
+                    Counterparty updatedCounterparty = UpdateCounterpartyInfo(actualData, counterparty);
 
-                    await AddCounterpartyToNewGen(counterparty);
+                    if (updatedCounterparty != null)
+                        await AddCounterpartyToNewGen(updatedCounterparty);
                 }
             }
             else
@@ -190,21 +191,32 @@ namespace copy_counterparty_app
             }
         }
 
-        private void UpdateCounterpartyInfo(DadataSearchResult result, ref Counterparty counterparty)
+        private Counterparty UpdateCounterpartyInfo(DadataSearchResult result, Counterparty counterparty)
         {
             foreach(DadataSearchResultItem item in result.Suggestions)
             {
                 if (item.Data.Ogrn.Contains(counterparty.Ogrn))
                 {
-                    counterparty.ShortName = item.Value;
-                    counterparty.Ogrn = item.Data.Ogrn;
-                    counterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
+                    Counterparty updatedCounterparty = counterparty.Copy(counterparty);
+
+                    updatedCounterparty.ShortName = item.Value;
+                    updatedCounterparty.Ogrn = item.Data.Ogrn;
+                    updatedCounterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
+
+                    if (item.Data.Ogrn == counterparty.Ogrn) 
+                        return null; // возвращаю null чтобы при повторной ошибке не упасть в бесконечную рекурсию
+
+                    return updatedCounterparty;
                 }
             }
+
+            return null;
         }
 
         private async Task<DadataSearchResult> SearchInfoOnDadata(string inn)
         {
+            Console.WriteLine("Загружаем актуальные данные для контрагента");
+
             DadataSearchQuery query = new DadataSearchQuery(inn);
             string jsonQuery = JsonConvert.SerializeObject(query);
             const string daDataToken = "db843b54d0653886c2d97189c8b0f8ee1ca71405";
