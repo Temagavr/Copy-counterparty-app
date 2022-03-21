@@ -18,6 +18,12 @@ namespace copy_counterparty_app.Grammatical
         {
             Nominative = nominative;
             Genitive = genitive;
+
+            if (nominative == "")
+                Nominative = null;
+
+            if (genitive == "")
+                Genitive = null;
         }
 
         public GrammaticalCases Copy()

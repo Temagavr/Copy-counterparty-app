@@ -165,8 +165,12 @@ namespace copy_counterparty_app
                     ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
                     Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
+                    
                     // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
-                    await SearchInfoOnDadata(counterparty.Inn); // Ошибка безопасности 
+                    DadataSearchResult actualData = await SearchInfoOnDadata(counterparty.Inn);
+                    UpdateCounterpartyInfo(actualData, ref counterparty);
+
+                    await AddCounterpartyToNewGen(counterparty);
                 }
             }
             else
@@ -183,6 +187,19 @@ namespace copy_counterparty_app
 
                 //Добавление подписантов к контрагенту в новом генераторе 
                 await AddAllSigners(newCounterparty, counterparty);
+            }
+        }
+
+        private void UpdateCounterpartyInfo(DadataSearchResult result, ref Counterparty counterparty)
+        {
+            foreach(DadataSearchResultItem item in result.Suggestions)
+            {
+                if (item.Data.Ogrn.Contains(counterparty.Ogrn))
+                {
+                    counterparty.ShortName = item.Value;
+                    counterparty.Ogrn = item.Data.Ogrn;
+                    counterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
+                }
             }
         }
 
