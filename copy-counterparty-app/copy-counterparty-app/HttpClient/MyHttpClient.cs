@@ -21,7 +21,7 @@ namespace copy_counterparty_app
 
         private const string _counterpartiesListPath = _baseUrl + "/{0}";
         private const string _counterpartiesSearchPath = _baseUrl + "/search";
-        private const string _counterpartiesAddPath = _baseUrl +  "/create";
+        private const string _counterpartiesAddPath = _baseUrl + "/create";
         private const string _counterpartyAddAccommodationPath = _baseUrl + "/{0}/accommodation-presets/create";
         private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
@@ -40,7 +40,7 @@ namespace copy_counterparty_app
             }
 
             return counterparty;
-        } 
+        }
 
         private void ShowCounterparty(Counterparty counterparty)
         {
@@ -86,7 +86,7 @@ namespace copy_counterparty_app
             string jsonResponse = response.Content.ReadAsStringAsync().Result;
             SearchResult searchResult = JsonConvert.DeserializeObject<SearchResult>(jsonResponse);
 
-            if(searchResult.FilteredCount > 0)
+            if (searchResult.FilteredCount > 0)
             {
                 return searchResult.Items.First();
             }
@@ -100,7 +100,7 @@ namespace copy_counterparty_app
             {
                 int? oldCounterpartyId = null;
 
-                if(counterparty.OldCounterpartyId != null)
+                if (counterparty.OldCounterpartyId != null)
                 {
                     var oldCounterparty = OldGenData.GetCounterpartyById(counterparty.OldCounterpartyId).Map();
 
@@ -125,7 +125,7 @@ namespace copy_counterparty_app
                 }
 
                 CreateCounterpartyDto createCounterpartyDto = new CreateCounterpartyDto(
-                    counterparty.Type,
+                    TypeToString[((int)counterparty.Type)],
                     counterparty.ShortName,
                     counterparty.LegalAddress,
                     counterparty.PostalAddress,
@@ -137,7 +137,7 @@ namespace copy_counterparty_app
                     counterparty.Kpp,
                     counterparty.Ogrn,
                     counterparty.IsBudgetaryInstitution,
-                    oldCounterpartyId );
+                    oldCounterpartyId);
 
                 string jsonCounterparty = JsonConvert.SerializeObject(createCounterpartyDto);
 
@@ -165,7 +165,7 @@ namespace copy_counterparty_app
                     ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
                     Console.WriteLine($"\nОшибка при добавлении контрагента {counterparty.ShortName}, причина - {errorResponse.Details}!");
-                    
+
                     // при ошибке по огрн подтянуть новые данные(огрн, адреса и название) с стороннего сервиса по ИНН и попытаться добавить снова
                     DadataSearchResult actualData = await SearchInfoOnDadata(counterparty.Inn);
                     Counterparty updatedCounterparty = UpdateCounterpartyInfo(actualData, counterparty);
@@ -193,7 +193,7 @@ namespace copy_counterparty_app
 
         private Counterparty UpdateCounterpartyInfo(DadataSearchResult result, Counterparty counterparty)
         {
-            foreach(DadataSearchResultItem item in result.Suggestions)
+            foreach (DadataSearchResultItem item in result.Suggestions)
             {
                 if (item.Data.Ogrn.Contains(counterparty.Ogrn))
                 {
@@ -203,8 +203,12 @@ namespace copy_counterparty_app
                     updatedCounterparty.Ogrn = item.Data.Ogrn;
                     updatedCounterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
 
-                    if (item.Data.Ogrn == counterparty.Ogrn) 
+                    if (item.Data.Ogrn == counterparty.Ogrn)
+                    {
+                        Console.WriteLine("\nНевозможно добавить контрагента");
+
                         return null; // возвращаю null чтобы при повторной ошибке не упасть в бесконечную рекурсию
+                    }
 
                     return updatedCounterparty;
                 }
@@ -242,7 +246,7 @@ namespace copy_counterparty_app
             }
         }
 
-        private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData) 
+        private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData)
         {
             if (oldCounterpartyData.AccommodationPresets.Count > 0)
             {
@@ -344,5 +348,12 @@ namespace copy_counterparty_app
                 Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {errorResponse.Details}!");
             }
         }
+
+
+        private Dictionary<int, string> TypeToString = new Dictionary<int, string>()
+        {
+            { 1, "ArtificialPerson" },
+            { 2, "IndividualEntrepreneur" }
+        };
     }
 }

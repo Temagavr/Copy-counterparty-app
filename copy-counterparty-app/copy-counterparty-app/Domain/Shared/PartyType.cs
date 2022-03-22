@@ -1,4 +1,6 @@
-﻿namespace copy_counterparty_app.Domain.Shared
+﻿using System.Collections.Generic;
+
+namespace copy_counterparty_app.Domain.Shared
 {
     /// <summary>
     /// Тип организации

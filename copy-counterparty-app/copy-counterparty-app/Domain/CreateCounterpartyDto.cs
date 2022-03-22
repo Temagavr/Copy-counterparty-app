@@ -9,7 +9,7 @@ namespace copy_counterparty_app.Domain
 {
     public class CreateCounterpartyDto
     {
-        public PartyType Type { get; set; }
+        public string Type { get; set; }
 
         public string ShortName { get; set; }
 
@@ -36,7 +36,7 @@ namespace copy_counterparty_app.Domain
         public int? OldCounterpartyId { get; set; }
 
         public CreateCounterpartyDto(
-            PartyType type,
+            string type,
             string shortName,
             string legalAddress,
             string postalAddress,
