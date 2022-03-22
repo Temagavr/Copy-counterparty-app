@@ -116,7 +116,7 @@ namespace copy_counterparty_app
                             oldCounterpartyId = newOldCounterparty.Id;
                         else
                         {
-                            return; // Уточнить насчет того если не получилось добавить старого контрагнета, нужно ли добавлять нового без связи 
+                            return;
                         }
                     }
                     else
@@ -152,8 +152,10 @@ namespace copy_counterparty_app
 
                     Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
-                    if (oldCounterpartyId != null)
+                    // Добавление связи со страым контрагентом
+                    if (oldCounterpartyId != null) 
                         if(await BindCounterparties(newCounterparty.Id, oldCounterpartyId))
+                            // получение новых данных при успешном связывании 
                             newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
                     //Добавление средств размещения к контрагенту в новом генераторе 
@@ -222,7 +224,6 @@ namespace copy_counterparty_app
 
             return null;
         }
-
         private async Task<DadataSearchResult> SearchInfoOnDadata(string inn)
         {
             Console.WriteLine("Загружаем актуальные данные для контрагента");
