@@ -10,6 +10,7 @@ using System.IO;
 using Newtonsoft.Json;
 using copy_counterparty_app.OldGen;
 using System.Net.Http.Headers;
+using copy_counterparty_app.Dtos;
 
 namespace copy_counterparty_app
 {
@@ -22,6 +23,7 @@ namespace copy_counterparty_app
         private const string _counterpartiesListPath = _baseUrl + "/{0}";
         private const string _counterpartiesSearchPath = _baseUrl + "/search";
         private const string _counterpartiesAddPath = _baseUrl + "/create";
+        private const string _counterpartiesBindPath = _baseUrl + "/bind";
         private const string _counterpartyAddAccommodationPath = _baseUrl + "/{0}/accommodation-presets/create";
         private const string _counterpartyAddBankDetailsPath = _baseUrl + "/{0}/bank-details-presets/create";
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
@@ -137,7 +139,7 @@ namespace copy_counterparty_app
                     counterparty.Kpp,
                     counterparty.Ogrn,
                     counterparty.IsBudgetaryInstitution,
-                    oldCounterpartyId);
+                    null);
 
                 string jsonCounterparty = JsonConvert.SerializeObject(createCounterpartyDto);
 
@@ -149,6 +151,10 @@ namespace copy_counterparty_app
                     Console.WriteLine($"\nКонтрагент {counterparty.ShortName} успешно добавлен!");
 
                     Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
+
+                    if (oldCounterpartyId != null)
+                        if(await BindCounterparties(newCounterparty.Id, oldCounterpartyId))
+                            newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
 
                     //Добавление средств размещения к контрагенту в новом генераторе 
                     await AddAllAccommodations(newCounterparty, counterparty);
@@ -245,7 +251,30 @@ namespace copy_counterparty_app
                 return null;
             }
         }
+        private async Task<bool> BindCounterparties(int newId, int? oldId)
+        {
+            BindCounterpartiesDto bindCounterpartiesDto = new BindCounterpartiesDto(newId, oldId);
 
+            string jsonData = JsonConvert.SerializeObject(bindCounterpartiesDto);
+
+            var httpContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _client.PostAsync(_counterpartiesBindPath, httpContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Контрагенту id = {newId} успешно присвоен родитель id = {oldId}!");
+                return true;
+            }
+            else
+            {
+                string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                Console.WriteLine($"Ошибка при присвоении родителя контрагенту id = {newId}, причина - {errorResponse.Details}!");
+                
+                return false;
+            }
+        }
         private async Task AddAllAccommodations(Counterparty counterparty, Counterparty oldCounterpartyData)
         {
             if (oldCounterpartyData.AccommodationPresets.Count > 0)
@@ -348,7 +377,6 @@ namespace copy_counterparty_app
                 Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {errorResponse.Details}!");
             }
         }
-
 
         private Dictionary<int, string> TypeToString = new Dictionary<int, string>()
         {

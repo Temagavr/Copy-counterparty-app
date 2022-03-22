@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace copy_counterparty_app.Domain
+namespace copy_counterparty_app.Dtos
 {
     public class CreateCounterpartyDto
     {
