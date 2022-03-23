@@ -203,24 +203,27 @@ namespace copy_counterparty_app
 
         private Counterparty UpdateCounterpartyInfo(DadataSearchResult result, Counterparty counterparty)
         {
-            foreach (DadataSearchResultItem item in result.Suggestions)
+            if (result != null)
             {
-                if (item.Data.Ogrn.Contains(counterparty.Ogrn))
+                foreach (DadataSearchResultItem item in result.Suggestions)
                 {
-                    Counterparty updatedCounterparty = counterparty.Copy(counterparty);
-
-                    updatedCounterparty.ShortName = item.Value;
-                    updatedCounterparty.Ogrn = item.Data.Ogrn;
-                    updatedCounterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
-
-                    if (item.Data.Ogrn == counterparty.Ogrn)
+                    if (item.Data.Ogrn.Contains(counterparty.Ogrn))
                     {
-                        Console.WriteLine("\nНевозможно добавить контрагента");
+                        Counterparty updatedCounterparty = counterparty.Copy(counterparty);
 
-                        return null; // возвращаю null чтобы при повторной ошибке не упасть в бесконечную рекурсию
+                        updatedCounterparty.ShortName = item.Value;
+                        updatedCounterparty.Ogrn = item.Data.Ogrn;
+                        updatedCounterparty.LegalAddress = item.Data.Address.Unrestricted_Value;
+
+                        if (item.Data.Ogrn == counterparty.Ogrn)
+                        {
+                            Console.WriteLine("\nНевозможно добавить контрагента");
+
+                            return null; // возвращаю null чтобы при повторной ошибке не упасть в бесконечную рекурсию
+                        }
+
+                        return updatedCounterparty;
                     }
-
-                    return updatedCounterparty;
                 }
             }
 
