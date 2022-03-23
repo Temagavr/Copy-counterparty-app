@@ -102,29 +102,7 @@ namespace copy_counterparty_app
             {
                 int? oldCounterpartyId = null;
 
-                if (counterparty.OldCounterpartyId != null)
-                {
-                    var oldCounterparty = OldGenData.GetCounterpartyById(counterparty.OldCounterpartyId).Map();
-
-                    if (!await IsExistCounterpartyInNewGenByInn(oldCounterparty))
-                    {
-                        //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
-                        await AddCounterpartyToNewGen(oldCounterparty);
-                        var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
-
-                        if (newOldCounterparty != null)
-                            oldCounterpartyId = newOldCounterparty.Id;
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
-                        oldCounterpartyId = newOldCounterparty.Id;
-                    }
-                }
+                
 
                 CreateCounterpartyDto createCounterpartyDto = new CreateCounterpartyDto(
                     TypeToString[((int)counterparty.Type)],
@@ -151,6 +129,30 @@ namespace copy_counterparty_app
                     Console.WriteLine($"\nКонтрагент {counterparty.ShortName} успешно добавлен!");
 
                     Counterparty newCounterparty = await GetCounterpartyByInnFromNewGen(counterparty.Inn);
+
+                    if (counterparty.OldCounterpartyId != null)
+                    {
+                        var oldCounterparty = OldGenData.GetCounterpartyById(counterparty.OldCounterpartyId).Map();
+
+                        if (!await IsExistCounterpartyInNewGenByInn(oldCounterparty))
+                        {
+                            //сначала добавление старого контрагента если он есть у текущего контрагента и при этом если его нет в базе 
+                            await AddCounterpartyToNewGen(oldCounterparty);
+                            var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
+
+                            if (newOldCounterparty != null)
+                                oldCounterpartyId = newOldCounterparty.Id;
+                            else
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var newOldCounterparty = await GetCounterpartyByInnFromNewGen(oldCounterparty.Inn);
+                            oldCounterpartyId = newOldCounterparty.Id;
+                        }
+                    }
 
                     // Добавление связи со страым контрагентом
                     if (oldCounterpartyId != null) 

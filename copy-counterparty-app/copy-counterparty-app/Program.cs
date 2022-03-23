@@ -28,20 +28,22 @@ namespace copy_counterparty_app
             
             MyHttpClient client = new MyHttpClient();
             
+            /*
             foreach(OldGenCounterparty oldCounterparty in OldGenData.oldGenCounterparties)
             {
                 Counterparty counterparty = oldCounterparty.Map();
 
                 await client.AddCounterpartyToNewGen(counterparty);
             }
+            */
 
-            /*
-            for(int i = 0; i < 2; ++i)
+            
+            for(int i = 100; i < 200; ++i)
             {
                 Counterparty counterparty = OldGenData.oldGenCounterparties[i].Map();
 
                 await client.AddCounterpartyToNewGen(counterparty);
-            }*/
+            }
         }
     }
 }
