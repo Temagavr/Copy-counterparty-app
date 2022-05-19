@@ -15,6 +15,9 @@ namespace copy_counterparty_app
             const string fileSignersName = "signer.json";
             const string fileBanksName = "bank.json";
 
+            const string email = "toxikage@mail.ru";
+            const string token = "aee30667-52b6-4868-99c6-bdbc69b0149d";
+
             Console.WriteLine("Program started");
 
             OldGenData.ParseOldGenCounterpartiesData(fileCounterpartiesName);
@@ -26,7 +29,7 @@ namespace copy_counterparty_app
             OldGenData.SetSignersToCounterparties();
             OldGenData.SetBanksToCounterparties();
             
-            MyHttpClient client = new MyHttpClient();
+            MyHttpClient client = new MyHttpClient(email, token);
             
             /*
             foreach(OldGenCounterparty oldCounterparty in OldGenData.oldGenCounterparties)
@@ -38,7 +41,7 @@ namespace copy_counterparty_app
             */
 
             
-            for(int i = 100; i < 200; ++i)
+            for(int i = 0; i < 301; ++i)
             {
                 Counterparty counterparty = OldGenData.oldGenCounterparties[i].Map();
 

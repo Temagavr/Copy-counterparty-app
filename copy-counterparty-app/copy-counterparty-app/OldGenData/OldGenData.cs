@@ -177,15 +177,15 @@ namespace copy_counterparty_app.OldGen
                 counterparty.AddBankDetailsAsPreset(oldBank.Map());
             }
 
-            if ( oldCounterparty.Short_Name.Contains("ИП") )
+            if ( oldCounterparty.Short_Name.StartsWith("ИП") )
                 counterparty.Type = PartyType.IndividualEntrepreneur;
             else
                 counterparty.Type = PartyType.ArtificialPerson;
 
-            if ( oldCounterparty.Short_Name.Contains("ООО") || // Явное проставление типа для случаев если название такое "ООО <ИПАРТ>"
-                oldCounterparty.Short_Name.Contains("ЗАО") ||
-                oldCounterparty.Short_Name.Contains("АО") ||
-                oldCounterparty.Short_Name.Contains("ОАО") )
+            if ( oldCounterparty.Short_Name.StartsWith("ООО") || // Явное проставление типа для случаев если название такое "ООО <ИПАРТ>"
+                oldCounterparty.Short_Name.StartsWith("ЗАО") ||
+                oldCounterparty.Short_Name.StartsWith("АО") ||
+                oldCounterparty.Short_Name.StartsWith("ОАО") )
                 counterparty.Type = PartyType.ArtificialPerson;
 
             return counterparty;

@@ -30,6 +30,11 @@ namespace copy_counterparty_app
 
         private const string _dadataSearchCounterpartyPath = "https://dadata.ru/api/v2/suggest/party";
 
+        public MyHttpClient(string email, string token)
+        {
+            _client.DefaultRequestHeaders.Add("Cookie",$"Email={email};Token={token}");
+        }
+
         public async Task<Counterparty> GetCounterpartyByIdFromNewGen(int? id)
         {
             HttpResponseMessage responseMessage = await _client.GetAsync(string.Format(_counterpartiesListPath, id));
