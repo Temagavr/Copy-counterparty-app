@@ -202,6 +202,11 @@ namespace copy_counterparty_app.OldGen
                 oldAccommodation.Site_Url,
                 oldAccommodation.Tl_Id );
 
+            if(accommodation.SiteUrl == "https://-" || accommodation.SiteUrl.Length < 12)
+            {
+                accommodation.SiteUrl = "https://------";
+            }
+
             return accommodation;
         }
 

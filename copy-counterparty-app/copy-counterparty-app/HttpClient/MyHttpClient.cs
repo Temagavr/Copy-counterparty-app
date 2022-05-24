@@ -18,7 +18,8 @@ namespace copy_counterparty_app
     {
         private HttpClient _client = new HttpClient();
 
-        private const string _baseUrl = "http://localhost:4200/api/v1/counterparties";
+        //private const string _baseUrl = "http://localhost:4200/api/v1/counterparties";
+        private const string _baseUrl = "https://www.qatl.ru/secure/DocGen2/api/v1/counterparties";
 
         private const string _counterpartiesListPath = _baseUrl + "/{0}";
         private const string _counterpartiesSearchPath = _baseUrl + "/search";
@@ -29,6 +30,11 @@ namespace copy_counterparty_app
         private const string _counterpartyAddSignerPath = _baseUrl + "/{0}/signer-presets/create";
 
         private const string _dadataSearchCounterpartyPath = "https://dadata.ru/api/v2/suggest/party";
+
+        private const string _errorCounterparties = "errorCounterparies.txt";
+        private const string _errorBanks = "errorBanks.txt";
+        private const string _errorAccommodations = "errorAccommodations.txt";
+        private const string _errorSigners = "errorSigners.txt";
 
         public MyHttpClient(string email, string token)
         {
@@ -107,8 +113,6 @@ namespace copy_counterparty_app
             {
                 int? oldCounterpartyId = null;
 
-                
-
                 CreateCounterpartyDto createCounterpartyDto = new CreateCounterpartyDto(
                     TypeToString[((int)counterparty.Type)],
                     counterparty.ShortName,
@@ -186,7 +190,24 @@ namespace copy_counterparty_app
                     Counterparty updatedCounterparty = UpdateCounterpartyInfo(actualData, counterparty);
 
                     if (updatedCounterparty != null)
+                    {
                         await AddCounterpartyToNewGen(updatedCounterparty);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            using (FileStream fstream = new FileStream(_errorCounterparties, FileMode.OpenOrCreate))
+                            {
+                                byte[] buffer = Encoding.Default.GetBytes(jsonCounterparty);
+                                await fstream.WriteAsync(buffer, 0, buffer.Length);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
                 }
             }
             else
@@ -343,6 +364,19 @@ namespace copy_counterparty_app
                 string jsonResponse = response.Content.ReadAsStringAsync().Result;
                 ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
+                try
+                {
+                    using (FileStream fstream = new FileStream(_errorAccommodations, FileMode.OpenOrCreate))
+                    {
+                        byte[] buffer = Encoding.Default.GetBytes(jsonAccommodation);
+                        await fstream.WriteAsync(buffer, 0, buffer.Length);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
                 Console.WriteLine($"Ошибка при добавлении средства размещения {accommodation.Value.Name}, причина - {errorResponse.Details}!");
             }
         }
@@ -364,6 +398,19 @@ namespace copy_counterparty_app
                 string jsonResponse = response.Content.ReadAsStringAsync().Result;
                 ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
 
+                try
+                {
+                    using (FileStream fstream = new FileStream(_errorBanks, FileMode.Append))
+                    {
+                        byte[] buffer = Encoding.Default.GetBytes(jsonBankDetails + '\n');
+                        await fstream.WriteAsync(buffer, 0, buffer.Length);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
                 Console.WriteLine($"Ошибка при добавлении банковских реквизитов {bankDetails.Value.Name}, причина - {errorResponse.Details}!");
             }
         }
@@ -384,6 +431,19 @@ namespace copy_counterparty_app
             {
                 string jsonResponse = response.Content.ReadAsStringAsync().Result;
                 ErrorResponse errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(jsonResponse);
+
+                try
+                {
+                    using (FileStream fstream = new FileStream(_errorSigners, FileMode.OpenOrCreate))
+                    {
+                        byte[] buffer = Encoding.Default.GetBytes(jsonSigner);
+                        await fstream.WriteAsync(buffer, 0, buffer.Length);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
 
                 Console.WriteLine($"Ошибка при добавлении подписанта {signer.Value.FullName.Nominative}, причина - {errorResponse.Details}!");
             }
